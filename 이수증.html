@@ -434,7 +434,7 @@
           위와 같이 이수하였음을 확인합니다.
         </div>
 
-        <div class="cert-date">2026년 5월 18일</div>
+        <div class="cert-date" id="cert-date"></div>
 
         <div class="cert-issuer-wrap">
           <div class="cert-issuer">제13대 수도권대학입학사정관협의회</div>
@@ -448,6 +448,13 @@
   </div>
 
   <script>
+    // 발급일: 오늘 날짜 자동 반영
+    (function() {
+      const d = new Date();
+      const dateStr = d.getFullYear() + '년 ' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일';
+      document.getElementById('cert-date').textContent = dateStr;
+    })();
+
     // 헤더 로고를 워터마크로 복사 (base64 중복 방지)
     (function() {
       const logo = document.querySelector('.cert-logo');
