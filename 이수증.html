@@ -28,6 +28,24 @@
       color: var(--ink);
     }
 
+    /* ── 반응형 ── */
+    @media (max-width: 600px) {
+      body { padding: 24px 12px; }
+
+      .form-wrap {
+        padding: 24px 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      .form-wrap h2 { font-size: 1rem; }
+      .form-wrap p  { font-size: 0.78rem; margin-bottom: 20px; }
+
+      .field input  { font-size: 0.88rem; padding: 10px 12px; }
+      .btn-generate { font-size: 0.88rem; padding: 11px; }
+      .btn-print    { font-size: 0.82rem; padding: 10px 28px; margin-top: 16px; }
+      .notice       { font-size: 0.7rem; }
+    }
+
     /* ── 입력 폼 영역 ── */
     .form-wrap {
       background: white;
@@ -106,17 +124,19 @@
       flex-direction: column;
       align-items: center;
       width: 100%;
+      overflow: hidden;
     }
     #cert-area.visible { display: flex; }
 
     .cert {
       background: var(--cream);
       width: 680px;
-      max-width: 100%;
       padding: 60px 70px;
       position: relative;
       border: 1px solid #ccc;
       box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+      transform-origin: top center;
+      flex-shrink: 0;
     }
 
     /* 테두리 장식 */
@@ -466,6 +486,26 @@
       }
     })();
 
+    function scaleCert() {
+      const cert = document.querySelector('.cert');
+      const area = document.getElementById('cert-area');
+      if (!cert || !area) return;
+      const naturalWidth = 680;
+      const available = area.offsetWidth;
+      if (available < naturalWidth) {
+        const scale = available / naturalWidth;
+        cert.style.transform = 'scale(' + scale + ')';
+        cert.style.marginBottom = '-' + Math.round(cert.offsetHeight * (1 - scale)) + 'px';
+      } else {
+        cert.style.transform = '';
+        cert.style.marginBottom = '';
+      }
+    }
+
+    window.addEventListener('resize', function() {
+      if (document.getElementById('cert-area').classList.contains('visible')) scaleCert();
+    });
+
     function generate() {
       const org = document.getElementById('input-org').value.trim();
       const name = document.getElementById('input-name').value.trim();
@@ -481,6 +521,7 @@
 
       // 이수증으로 스크롤
       document.getElementById('cert-area').scrollIntoView({ behavior: 'smooth' });
+      scaleCert();
     }
 
     // 엔터키로도 생성
