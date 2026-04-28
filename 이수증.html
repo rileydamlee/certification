@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>이수증 발급 — 수도권 입학사정관협의회</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --ink: #1a1a2e;
+      --gold: #b8960c;
+      --gold-light: #e8c84a;
+      --cream: #faf8f2;
+      --border: #c9b96e;
+      --muted: #6b6b6b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #f0ede4;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      color: var(--ink);
+    }
+
+    /* ── 입력 폼 영역 ── */
+    .form-wrap {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 36px 40px;
+      width: 100%;
+      max-width: 480px;
+      margin-bottom: 32px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+
+    .form-wrap h2 {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .form-wrap p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+    .field label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .field input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #ddd;
+      border-radius: 7px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.95rem;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s;
+      background: #fafafa;
+    }
+    .field input:focus {
+      border-color: var(--gold);
+      background: white;
+    }
+
+    .btn-generate {
+      width: 100%;
+      padding: 13px;
+      background: var(--ink);
+      color: white;
+      border: none;
+      border-radius: 7px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 8px;
+      letter-spacing: 0.03em;
+      transition: background 0.2s;
+    }
+    .btn-generate:hover { background: #2d2d4e; }
+
+    /* ── 이수증 본체 ── */
+    #cert-area {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+    #cert-area.visible { display: flex; }
+
+    .cert {
+      background: var(--cream);
+      width: 680px;
+      max-width: 100%;
+      padding: 60px 70px;
+      position: relative;
+      border: 1px solid #ccc;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+    }
+
+    /* 테두리 장식 */
+    .cert::before {
+      content: '';
+      position: absolute;
+      inset: 12px;
+      border: 1.5px solid var(--border);
+      pointer-events: none;
+    }
+    .cert::after {
+      content: '';
+      position: absolute;
+      inset: 16px;
+      border: 0.5px solid var(--border);
+      pointer-events: none;
+    }
+
+    /* 모서리 장식 */
+    .corner {
+      position: absolute;
+      width: 28px; height: 28px;
+      border-color: var(--gold);
+      border-style: solid;
+    }
+    .corner.tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+    .corner.tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
+    .corner.bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
+    .corner.br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+    .cert-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .cert-title {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 2.6rem;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 0.45em;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+
+    .cert-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 18px 0 32px;
+    }
+    .cert-divider span {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+    }
+    .cert-divider i {
+      font-style: normal;
+      color: var(--gold);
+      font-size: 0.9rem;
+    }
+
+    .cert-row {
+      display: flex;
+      align-items: baseline;
+      margin-bottom: 18px;
+      gap: 0;
+    }
+    .cert-label {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 0.95rem;
+      color: var(--muted);
+      min-width: 90px;
+      letter-spacing: 0.05em;
+    }
+    .cert-colon {
+      margin: 0 14px 0 0;
+      color: var(--muted);
+    }
+    .cert-value {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--ink);
+      flex: 1;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 3px;
+    }
+    .cert-value.name-val {
+      font-size: 1.3rem;
+      letter-spacing: 0.12em;
+      border-bottom: 1.5px solid var(--border);
+      color: var(--ink);
+    }
+
+    .cert-statement {
+      margin: 36px 0 32px;
+      text-align: center;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 0.92rem;
+      color: var(--muted);
+      line-height: 2;
+      letter-spacing: 0.04em;
+    }
+
+    .cert-date {
+      text-align: center;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 1rem;
+      color: var(--ink);
+      margin-bottom: 28px;
+      letter-spacing: 0.08em;
+    }
+
+    .cert-issuer-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin-top: 8px;
+    }
+    .cert-issuer {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: 0.05em;
+      text-align: center;
+    }
+
+    /* 직인 자리 */
+    .cert-seal {
+      width: 80px;
+      height: 80px;
+      border: 2px dashed #ccc;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #bbb;
+      font-size: 0.7rem;
+      text-align: center;
+      line-height: 1.4;
+      flex-shrink: 0;
+    }
+    .cert-seal img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 50%;
+    }
+
+    /* 인쇄 버튼 */
+    .btn-print {
+      margin-top: 24px;
+      padding: 13px 40px;
+      background: white;
+      color: var(--ink);
+      border: 1.5px solid var(--ink);
+      border-radius: 7px;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+    .btn-print:hover {
+      background: var(--ink);
+      color: white;
+    }
+
+    .notice {
+      margin-top: 12px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* ── 인쇄 미디어 ── */
+    @media print {
+      @page { size: A4 portrait; margin: 0; }
+
+      html, body {
+        background: white;
+        padding: 0;
+        margin: 0;
+        width: 210mm;
+        height: 297mm;
+      }
+
+      .form-wrap, .btn-print, .notice { display: none !important; }
+
+      #cert-area {
+        display: block !important;
+        width: 210mm;
+        height: 297mm;
+      }
+
+      .cert {
+        box-shadow: none;
+        border: none;
+        width: 210mm;
+        height: 297mm;
+        padding: 90px 65px 60px;
+      }
+
+      .cert-inner {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .cert-issuer-wrap {
+        margin-top: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 입력 폼 -->
+  <div class="form-wrap">
+    <h2>이수증 발급</h2>
+    <p>소속과 성명을 입력하면 이수증이 생성됩니다.<br>미리보기 확인 후 인쇄 버튼을 눌러주세요.</p>
+
+    <div class="field">
+      <label>소속 (대학명)</label>
+      <input type="text" id="input-org" placeholder="예: 대진대학교" />
+    </div>
+    <div class="field">
+      <label>성명</label>
+      <input type="text" id="input-name" placeholder="예: 홍길동" />
+    </div>
+
+    <button class="btn-generate" onclick="generate()">이수증 미리보기 생성</button>
+  </div>
+
+  <!-- 이수증 -->
+  <div id="cert-area">
+    <div class="cert">
+      <div class="corner tl"></div>
+      <div class="corner tr"></div>
+      <div class="corner bl"></div>
+      <div class="corner br"></div>
+
+      <div class="cert-inner">
+        <div class="cert-title">이 수 증</div>
+
+        <div class="cert-divider">
+          <span></span><i>✦</i><span></span>
+        </div>
+
+        <div class="cert-row">
+          <span class="cert-label">소&emsp;&emsp;속</span>
+          <span class="cert-colon">:</span>
+          <span class="cert-value" id="out-org"></span>
+        </div>
+        <div class="cert-row">
+          <span class="cert-label">성&emsp;&emsp;명</span>
+          <span class="cert-colon">:</span>
+          <span class="cert-value name-val" id="out-name"></span>
+        </div>
+        <div class="cert-row">
+          <span class="cert-label">프로그램명</span>
+          <span class="cert-colon">:</span>
+          <span class="cert-value">수도권 입학사정관협의회 교육</span>
+        </div>
+        <div class="cert-row">
+          <span class="cert-label">이&nbsp;수&nbsp;일&nbsp;자</span>
+          <span class="cert-colon">:</span>
+          <span class="cert-value">2026년 5월 18일</span>
+        </div>
+        <div class="cert-row">
+          <span class="cert-label">이&nbsp;수&nbsp;시&nbsp;간</span>
+          <span class="cert-colon">:</span>
+          <span class="cert-value">4시간</span>
+        </div>
+
+        <div class="cert-statement">
+          위와 같이 이수하였음을 확인합니다.
+        </div>
+
+        <div class="cert-date">2026년 5월 18일</div>
+
+        <div class="cert-issuer-wrap">
+          <div class="cert-issuer">제13대 수도권입학사정관협의회</div>
+          <div class="cert-seal" id="seal-area">직인</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-print" onclick="window.print()">🖨 인쇄하기</button>
+    <p class="notice">인쇄 시 배경 그래픽 옵션을 활성화하면 더 깔끔하게 출력됩니다.</p>
+  </div>
+
+  <script>
+    function generate() {
+      const org = document.getElementById('input-org').value.trim();
+      const name = document.getElementById('input-name').value.trim();
+
+      if (!org || !name) {
+        alert('소속과 성명을 모두 입력해주세요.');
+        return;
+      }
+
+      document.getElementById('out-org').textContent = org;
+      document.getElementById('out-name').textContent = name;
+      document.getElementById('cert-area').classList.add('visible');
+
+      // 이수증으로 스크롤
+      document.getElementById('cert-area').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // 엔터키로도 생성
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') generate();
+    });
+  </script>
+</body>
+</html>
